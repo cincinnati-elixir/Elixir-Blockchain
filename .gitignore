@@ -2,7 +2,6 @@
 /blocks
 /bitcoin_block_files
 /blockchain_parser/_build
-parser
 
 /doc/
 /_build
