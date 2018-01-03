@@ -53,24 +53,29 @@ defmodule Parser do
   end
   
   def process_block_file(contents, next_block_number) do
-    <<block_size :: little-size(32), block :: little-binary-size(block_size), remaining :: little-binary>> = contents
+    <<block_size :: little-size(32), 
+      block :: binary-size(block_size), 
+      remaining :: little-binary>> = contents
     IO.puts("**********************************************************************************************************************")
     IO.puts("Block Number: #{next_block_number}")
     IO.puts("Block Size: #{block_size}")
-    <<version :: little-size(32), 
-      prev_hash :: little-size(256), 
-      merkle_root :: little-size(256),
-      time :: little-size(32),
-      nBits :: little-size(32),
-      nonce :: little-size(32),
+    <<header :: binary-size(80), 
       transactions :: little-binary>> = block
-    IO.puts("Version: #{version}")
-    IO.puts("Previous Block Header Hash: #{prev_hash}")
-    IO.puts("Merkle Root: #{merkle_root}")
-    IO.puts("Time: #{time}")
-    IO.puts("Difficulty: #{nBits}")
-    IO.puts("Nonce: #{nonce}")
-    #IO.puts("Transactions: #{transactions}")
+    IO.puts("Hash of Header is: #{:crypto.hash(:sha256,:crypto.hash(:sha256, header)) |> String.reverse |> Base.encode16}")
+      <<version :: little-size(32), 
+        prev_hash :: binary-size(32), 
+        merkle_root :: binary-size(32),
+        time :: little-size(32),
+        nBits :: little-size(32),
+        nonce :: little-size(32)>> = header
+      modified_prev_hash = prev_hash |> Base.encode16
+      IO.puts("Version: #{version}")
+      IO.puts("Previous Block Header Hash: #{modified_prev_hash}")
+      IO.puts("Merkle Root: #{inspect merkle_root}")
+      IO.puts("Time: #{time}")
+      IO.puts("Difficulty: #{nBits}")
+      IO.puts("Nonce: #{nonce}")
+    #  #IO.puts("Transactions: #{transactions}")
     IO.puts("**********************************************************************************************************************")
     IO.puts(" ")
     #remaining
@@ -84,13 +89,10 @@ defmodule Parser do
     ""
   end
 
-
   def strip_sentinel(contents) do
     << 0xF9, 0xBE, 0xB4, 0xD9,  remaining :: binary>> = contents
     remaining
   end
-
-
 
   def get_block_size(block_size) do
     Integer.parse(Integer.to_string(block_size, 16), 16)

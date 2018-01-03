@@ -3,7 +3,7 @@ defmodule Parser.Mixfile do
 
   def project do
     [app: :parser,
-    escript: escript_config,
+     escript: escript_config,
      version: "0.1.0",
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
